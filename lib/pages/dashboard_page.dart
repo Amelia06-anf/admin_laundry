@@ -74,10 +74,13 @@ class _DashboardPageState extends State<DashboardPage> {
               },
             ),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: content,
-            ),
+            child:
+                selectedMenu == 'Pesanan'
+                    ? const OrdersPage()
+                    : SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: content,
+                    ),
           ),
         ],
       ),
