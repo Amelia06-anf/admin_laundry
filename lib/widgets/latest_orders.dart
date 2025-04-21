@@ -1,7 +1,49 @@
+import 'package:admin_laudry/widgets/editForm.dart';
 import 'package:flutter/material.dart';
 
-class RecentOrders extends StatelessWidget {
+class RecentOrders extends StatefulWidget {
   const RecentOrders({super.key});
+
+  @override
+  State<RecentOrders> createState() => _RecentOrdersState();
+}
+
+class _RecentOrdersState extends State<RecentOrders> {
+  List<Map<String, String>> orders = [
+    {
+      "id": "#ORD-2504",
+      "pelanggan": "Anita Wijaya",
+      "layanan": "Cuci Setrika",
+      "berat": "3.5 kg",
+      "status": "Diproses",
+      "tanggal": "11 Apr 2025",
+      "total": "Rp 35.000",
+    },
+    {
+      "id": "#ORD-2503",
+      "pelanggan": "Bambang Kurniawan",
+      "layanan": "Express (6 Jam)",
+      "berat": "2 kg",
+      "status": "Selesai",
+      "tanggal": "11 Apr 2025",
+      "total": "Rp 30.000",
+    },
+  ];
+
+  void editOrder(String id, Map<String, String> updatedOrder) {
+    setState(() {
+      final index = orders.indexWhere((order) => order['id'] == id);
+      if (index != -1) {
+        orders[index] = updatedOrder;
+      }
+    });
+  }
+
+  void deleteOrder(String id) {
+    setState(() {
+      orders.removeWhere((order) => order['id'] == id);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,26 +73,38 @@ class RecentOrders extends StatelessWidget {
                     DataColumn(label: Text("Total")),
                     DataColumn(label: Text("Aksi")),
                   ],
-                  rows: [
-                    OrderRow(
-                      id: "#ORD-2504",
-                      pelanggan: "Anita Wijaya",
-                      layanan: "Cuci Setrika",
-                      berat: "3.5 kg",
-                      status: "Diproses",
-                      tanggal: "11 Apr 2025",
-                      total: "Rp 35.000",
-                    ),
-                    OrderRow(
-                      id: "#ORD-2503",
-                      pelanggan: "Bambang Kurniawan",
-                      layanan: "Express (6 Jam)",
-                      berat: "2 kg",
-                      status: "Selesai",
-                      tanggal: "11 Apr 2025",
-                      total: "Rp 30.000",
-                    ),
-                  ],
+                  rows:
+                      orders.map((order) {
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(order['id']!)),
+                            DataCell(Text(order['pelanggan']!)),
+                            DataCell(Text(order['layanan']!)),
+                            DataCell(Text(order['berat']!)),
+                            DataCell(Text(order['status']!)),
+                            DataCell(Text(order['tanggal']!)),
+                            DataCell(Text(order['total']!)),
+                            DataCell(
+                              ActionButtons(
+                                order: order,
+                                onEdit: (updatedOrder) {
+                                  editOrder(order['id']!, updatedOrder);
+                                },
+                                onDelete: () {
+                                  deleteOrder(order['id']!);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Pesanan ${order['id']} berhasil dihapus",
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
                 ),
               ),
             ),
@@ -61,36 +115,22 @@ class RecentOrders extends StatelessWidget {
   }
 }
 
-class OrderRow extends DataRow {
-  OrderRow({
-    required String id,
-    required String pelanggan,
-    required String layanan,
-    required String berat,
-    required String status,
-    required String tanggal,
-    required String total,
-  }) : super(
-         cells: [
-           DataCell(Text(id)),
-           DataCell(Text(pelanggan)),
-           DataCell(Text(layanan)),
-           DataCell(Text(berat)),
-           DataCell(Text(status)),
-           DataCell(Text(tanggal)),
-           DataCell(Text(total)),
-           DataCell(ActionButtons()),
-         ],
-       );
-}
-
 class ActionButtons extends StatelessWidget {
-  const ActionButtons({super.key});
+  final Map<String, String> order;
+  final void Function(Map<String, String>) onEdit;
+  final VoidCallback onDelete;
+
+  const ActionButtons({
+    super.key,
+    required this.order,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 60, // cukup untuk 2 icon
+      width: 60,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -100,9 +140,10 @@ class ActionButtons extends StatelessWidget {
             icon: const Icon(Icons.edit, size: 18),
             tooltip: 'Edit',
             onPressed: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Edit diklik')));
+              showDialog(
+                context: context,
+                builder: (_) => EditOrderForm(order: order, onSave: onEdit),
+              );
             },
           ),
           IconButton(
@@ -111,9 +152,29 @@ class ActionButtons extends StatelessWidget {
             icon: const Icon(Icons.delete, size: 18),
             tooltip: 'Hapus',
             onPressed: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Hapus diklik')));
+              showDialog(
+                context: context,
+                builder:
+                    (context) => AlertDialog(
+                      title: const Text("Konfirmasi"),
+                      content: Text(
+                        "Yakin ingin menghapus pesanan ${order['id']}?",
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Batal"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            onDelete();
+                          },
+                          child: const Text("Hapus"),
+                        ),
+                      ],
+                    ),
+              );
             },
           ),
         ],
