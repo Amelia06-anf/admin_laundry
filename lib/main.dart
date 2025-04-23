@@ -1,4 +1,5 @@
-
+import 'package:admin_laudry/pages/login.dart';
+import 'package:admin_laudry/pages/register.dart';
 import 'package:flutter/material.dart';
 import 'pages/dashboard_page.dart';
 
@@ -17,7 +18,12 @@ class DashboardAdminApp extends StatelessWidget {
         primarySwatch: Colors.deepPurple,
         scaffoldBackgroundColor: const Color(0xFFF4F6F8),
       ),
-      home: const DashboardPage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+        '/dashboard': (context) => const DashboardPage(),
+      },
     );
   }
 }
