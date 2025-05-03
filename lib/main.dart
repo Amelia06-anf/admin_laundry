@@ -1,3 +1,4 @@
+import 'package:admin_laudry/pages/laporanPage.dart';
 import 'package:admin_laudry/pages/login.dart';
 import 'package:admin_laudry/pages/register.dart';
 import 'package:flutter/material.dart';

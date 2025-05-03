@@ -1,3 +1,4 @@
+import 'package:admin_laudry/pages/laporanPage.dart';
 import 'package:admin_laudry/pages/order_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:admin_laudry/widgets/latest_orders.dart';
@@ -40,6 +41,8 @@ class _DashboardPageState extends State<DashboardPage> {
       );
     } else if (selectedMenu == 'Pesanan') {
       content = const OrdersPage();
+    } else if (selectedMenu == 'Laporan') {
+      content = const LaporanPage();
     } else {
       content = Center(child: Text('Halaman "$selectedMenu" belum tersedia'));
     }
